@@ -44,7 +44,7 @@ func WrapN(err error, stackSize int) *StackErr { return wrapInternal(err, stackS
 
 // WrapNf acts exactly like Wrap except you can specify how many
 // stack frames display in the stack trace, and an additional context message
-func WrapN(err error, stackSize int, format string, fmtArgs ...interface{}) *StackErr {
+func WrapNf(err error, stackSize int, format string, fmtArgs ...interface{}) *StackErr {
 	return wrapInternal(err, stackSize, format, fmtArgs...)
 }
 
