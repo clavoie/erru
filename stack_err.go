@@ -56,7 +56,7 @@ func wrapInternal(err error, stackSize int, format string, fmtArgs ...interface{
 	}
 
 	stackErr, isStackErr := err.(*StackErr)
-	if isStackErr {
+	if isStackErr && format == "" {
 		return stackErr
 	}
 
