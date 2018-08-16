@@ -22,31 +22,31 @@ type httpErr struct {
 // NewHttpBadRequest is a convenience function for creating a new HttpErr that responds
 // with status code 400
 func NewHttpBadRequest(format string, fmtArgs ...interface{}) HttpErr {
-	return NewHttpError(http.StatusBadRequest, format, fmtArgs)
+	return NewHttpError(http.StatusBadRequest, format, fmtArgs...)
 }
 
 // NewHttpUnauthorized is a convenience function for creating a new HttpErr that responds
 // with status code 401
 func NewHttpUnauthorized(format string, fmtArgs ...interface{}) HttpErr {
-	return NewHttpError(http.StatusUnauthorized, format, fmtArgs)
+	return NewHttpError(http.StatusUnauthorized, format, fmtArgs...)
 }
 
 // NewHttpForbidden is a convenience function for creating a new HttpErr that responds
 // with status code 403
 func NewHttpForbidden(format string, fmtArgs ...interface{}) HttpErr {
-	return NewHttpError(http.StatusForbidden, format, fmtArgs)
+	return NewHttpError(http.StatusForbidden, format, fmtArgs...)
 }
 
 // NewHttpNotFound is a convenience function for creating a new HttpErr that responds
 // with status code 404
 func NewHttpNotFound(format string, fmtArgs ...interface{}) HttpErr {
-	return NewHttpError(http.StatusNotFound, format, fmtArgs)
+	return NewHttpError(http.StatusNotFound, format, fmtArgs...)
 }
 
 // NewHttpInternalServerErr is a convenience function for creating a new HttpErr that responds
 // with status code 500
 func NewHttpInternalServerErr(format string, fmtArgs ...interface{}) HttpErr {
-	return NewHttpError(http.StatusInternalServerError, format, fmtArgs)
+	return NewHttpError(http.StatusInternalServerError, format, fmtArgs...)
 }
 
 // NewHttpError returns a new IHttpError from an HTTP status code and a format error message string

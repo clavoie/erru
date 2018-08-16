@@ -1,2 +1,2 @@
-// Package erru contains error handling utilities
+// Package erru contains error handling utilities.
 package erru

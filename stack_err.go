@@ -16,7 +16,7 @@ type StackErr interface {
 	// Err is the original error
 	Err() error
 
-	// Msg is an additional user message adding context to which
+	// Msg is an additional user message adding context in which
 	// the error was raised
 	Msg() string
 
