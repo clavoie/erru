@@ -32,9 +32,9 @@ type stackErr struct {
 	frames []StackFrame
 }
 
-func (se *stackErr) Err() error        { return se.err }
-func (se *stackErr) Msg() string       { return se.msg }
-func (se *stackErr) Err() []StackFrame { return se.frames }
+func (se *stackErr) Err() error           { return se.err }
+func (se *stackErr) Msg() string          { return se.msg }
+func (se *stackErr) Frames() []StackFrame { return se.frames }
 
 // Errorf is like fmt.Errorf except that the returned error has a stack trace
 func Errorf(format string, fmtArgs ...interface{}) StackErr {
@@ -116,7 +116,7 @@ func wrapInternal(err error, stackSize int, toFill *stackErr, format string, fmt
 
 	toFill.err = err
 	toFill.msg = msg
-	toFill.frames = frames
+	toFill.frames = stackFrames
 	return toFill
 }
 
