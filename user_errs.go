@@ -22,8 +22,8 @@ type userErrs struct {
 	errs []string
 }
 
-// NewUserErrors creates and returns a new UserErrs
-func NewUserErrors(errs ...string) UserErrs {
+// NewUserErrs creates and returns a new UserErrs
+func NewUserErrs(errs ...string) UserErrs {
 	return &userErrs{
 		errs: errs,
 	}
