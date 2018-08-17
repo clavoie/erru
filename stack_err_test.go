@@ -8,6 +8,15 @@ import (
 	"github.com/clavoie/erru"
 )
 
+func testNamedFunc() error {
+	innerErr := func() error {
+		return func() error {
+			return erru.WrapF(errors.New("inner error"), "inner error format")
+		}()
+	}()
+	return erru.WrapF(innerErr, "outer error format")
+}
+
 func TestStackErr(t *testing.T) {
 	t.Run("Errorf", func(t *testing.T) {
 		format := "test err %v"
@@ -127,5 +136,8 @@ func TestStackErr(t *testing.T) {
 		if stackErr2 == stackErr1 {
 			t.Fatalf("Was expecting not %v but found: %v", stackErr1, stackErr2)
 		}
+	})
+	t.Run("Error", func(t *testing.T) {
+		t.Log("\n" + testNamedFunc().Error())
 	})
 }

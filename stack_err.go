@@ -122,28 +122,26 @@ func wrapInternal(err error, stackSize int, toFill *stackErr, format string, fmt
 
 // Error returns the original error message with a stack trace
 func (se *stackErr) Error() string {
-	messageSpaces := 2
+	return se.errorInternal(0)
+}
+
+func (se *stackErr) errorInternal(indentLevel int) string {
+	msg := make([]string, 0, (len(se.frames)*2)+4)
+	indent := strings.Repeat(" ", indentLevel)
+	add := func(str string) { msg = append(msg, indent+str) }
 
 	if se.msg != "" {
-		messageSpaces += 2
+		add(se.msg)
 	}
 
-	msg := make([]string, (len(se.frames)*2)+messageSpaces)
-	baseIndex := 0
-
-	if se.msg != "" {
-		msg[0] = se.msg
-		msg[1] = ""
-		baseIndex = 2
+	innerStackErr, isStackErr := se.err.(*stackErr)
+	if isStackErr {
+		add(innerStackErr.errorInternal(indentLevel + 2))
 	}
 
-	msg[baseIndex] = se.err.Error()
-	msg[baseIndex+1] = ""
-	baseIndex += 2
-
-	for index, frame := range se.frames {
-		msg[index+baseIndex] = frame.FmtFunc()
-		msg[index+baseIndex+1] = frame.FmtFileLine()
+	for _, frame := range se.frames {
+		add(frame.FmtFunc())
+		add("  " + frame.FmtFileLine())
 	}
 
 	return strings.Join(msg, "\n")
