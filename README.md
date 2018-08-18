@@ -3,8 +3,7 @@
 Error utilities for Go.
 
 ## Stack Traces
-
-You can add stack traces to an existing error by calling Wrap. If you'd like to add a context message along with the stack trace you can call WrapF. If you'd like to create a brand new error that contains a stack trace and message, call Errorf.
+Stack traces can be added to an existing error by calling Wrap. A context message for the error along with the stack trace can be added by calling WrapF. New errors that contains a stack trace can be created by calling Errorf.
 
 ```go
   func DoWork(arg interface{}) error {
@@ -32,7 +31,7 @@ You can add stack traces to an existing error by calling Wrap. If you'd like to 
 
 [All error helper functions here](https://godoc.org/github.com/clavoie/erru#StackErr)
 
-Below is an example of how the stack traces are formatted. If erru detects another erru error with additional context, it will indent the inner error by another level:
+Below is an example of how the stack traces are formatted. If erru detects it is wrapping another erru error with additional context, it will indent the inner error by another level:
 
 ```
 outer error message
@@ -59,13 +58,19 @@ A definition is provided for an HttpErr, which is an error with a stack trace an
 
 ## Multiplexer
 
-Sometimes multiple db or external calls need to be done in parallel, and the higher level code only cares about if an error is returned or not. erru provides a multiplexing utility that runs several func in separate goroutines, waits for them to end, collects the first error and returns it to the caller.
+Sometimes multiple db or external calls need to be done in parallel, and the higher level code only cares about if any of those calls returned an error or not. Multiplexer is a utility that runs several funcs in separate goroutines, waits for them to end, collects the first error and returns it to the caller.
 
 ```go
   func loadData() error {
+    data1 := new(Type1)
+    data2 := new(Type2)
+    // etc
+    
     multiplexer := erru.NewMultiplexer()
-    multiplexer.Add(func (errChan chan error) {
-      errChan <- db.Query()
+    multiplexer.Add(func () error {
+      return db.Query(&data1)
+    }, func () error {
+      return db.Quer(&data2)
     })
     // etc
     
@@ -77,3 +82,19 @@ Sometimes multiple db or external calls need to be done in parallel, and the hig
 ```
 
 ## Dependency Injection
+
+A wrapper is provided around all top level functions in the erru package. They can be injected the into your code instead of calling the package functions directly if you so choose. erru provides a function to hook into the [di dependency injection system](https://github.com/clavoie/di), but the constructors for all wrappers are open in case you would like to use another:
+
+```go
+  resolver, err := di.NewResolver(errHandler, erru.NewDiDefs())
+  // etc
+  
+  func InjectableFunc(impl erru.Impl, multiplexer erru.Multiplexer) error {
+    multiplexer.Add(DbCall, LoadFileFromS3)
+    return impl.Wrap(multiplexer.Go())
+  }
+  
+  err = resolver.Invoke(InjectableFunc)
+  // log err, etc...
+  
+```
