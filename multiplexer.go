@@ -55,8 +55,9 @@ func (m *multiplexer) Go() error {
 
 	errChan := make(chan error, fnSize)
 	for _, fn := range m.funcs {
+		funcToRun := fn
 		go func() {
-			errChan <- fn()
+			errChan <- funcToRun()
 		}()
 	}
 
