@@ -17,6 +17,15 @@ func TestMultiplexer(t *testing.T) {
 			t.Fatalf("Was expecting nil err but instead got: %v", err)
 		}
 	})
+	t.Run("AddNilInListNoErr", func(t *testing.T) {
+		multiplexer := erru.NewMultiplexer()
+		multiplexer.Add(func() error { return nil }, nil, func() error { return nil })
+		err := multiplexer.Go()
+
+		if err != nil {
+			t.Fatalf("Was expecting nil err but instead got: %v", err)
+		}
+	})
 	t.Run("GoNoFns", func(t *testing.T) {
 		multiplexer := erru.NewMultiplexer()
 		err := multiplexer.Go()
@@ -28,7 +37,7 @@ func TestMultiplexer(t *testing.T) {
 	t.Run("GoOneFn", func(t *testing.T) {
 		multiplexer := erru.NewMultiplexer()
 		expectedErr := errors.New("expected err")
-		multiplexer.Add(func(c chan error) { c <- expectedErr })
+		multiplexer.Add(func() error { return expectedErr })
 		err := multiplexer.Go()
 
 		if err != expectedErr {
@@ -40,9 +49,9 @@ func TestMultiplexer(t *testing.T) {
 		expectedErr1 := errors.New("expected err 1")
 		expectedErr2 := errors.New("expected err 2")
 
-		multiplexer.Add(func(c chan error) { c <- nil })
-		multiplexer.Add(func(c chan error) { c <- expectedErr2 })
-		multiplexer.Add(func(c chan error) { c <- expectedErr1 })
+		multiplexer.Add(func() error { return nil })
+		multiplexer.Add(func() error { return expectedErr2 })
+		multiplexer.Add(func() error { return expectedErr1 })
 
 		err := multiplexer.Go()
 

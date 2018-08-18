@@ -7,22 +7,22 @@ import (
 	"github.com/clavoie/erru"
 )
 
-func DbCall1(errChan chan error) {
+func DbCall1() error {
 	// do some work
-	errChan <- nil
+	// err := db.Query() etc
+	return nil
 }
 
 var expectedError = errors.New("expected error")
 
-func DbCall2(errChan chan error) {
+func DbCall2() error {
 	// do some work
-	errChan <- expectedError
+	return expectedError
 }
 
 func ExampleMultiplexer() {
 	multiplexer := erru.NewMultiplexer()
-	multiplexer.Add(DbCall1)
-	multiplexer.Add(DbCall2)
+	multiplexer.Add(DbCall1, DbCall2)
 
 	// splits each call out into a seperate goroutine and
 	// blocks until they all complete

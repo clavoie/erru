@@ -3,8 +3,8 @@ package erru
 // Multiplexer takes a collection of functions that return
 // errors and runs them in parallel
 type Multiplexer interface {
-	// Add adds a function to the multiplexer
-	Add(func(chan error))
+	// Add adds one or more functions to the multiplexer
+	Add(fns ...func() error)
 
 	// Go runs each func added to the multiplexer in parallel,
 	// waits for each to complete, then returns the first non-nil
@@ -18,22 +18,28 @@ type Multiplexer interface {
 
 // multiplexer is an implementation of Multiplexer
 type multiplexer struct {
-	funcs []func(chan error)
+	funcs []func() error
 }
 
 // NewMultiplexer returns a new instance of Multiplexer
 func NewMultiplexer() Multiplexer {
 	return &multiplexer{
-		funcs: make([]func(chan error), 0, 2),
+		funcs: make([]func() error, 0, 2),
 	}
 }
 
-func (m *multiplexer) Add(fn func(chan error)) {
-	if fn == nil {
+func (m *multiplexer) Add(fns ...func() error) {
+	if fns == nil {
 		return
 	}
 
-	m.funcs = append(m.funcs, fn)
+	for _, fn := range fns {
+		if fn == nil {
+			continue
+		}
+
+		m.funcs = append(m.funcs, fn)
+	}
 }
 
 func (m *multiplexer) Go() error {
@@ -43,14 +49,15 @@ func (m *multiplexer) Go() error {
 		return nil
 	}
 
-	errChan := make(chan error, fnSize)
 	if fnSize == 1 {
-		m.funcs[0](errChan)
-		return <-errChan
+		return m.funcs[0]()
 	}
 
+	errChan := make(chan error, fnSize)
 	for _, fn := range m.funcs {
-		go fn(errChan)
+		go func() {
+			errChan <- fn()
+		}()
 	}
 
 	var err error
