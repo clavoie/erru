@@ -60,3 +60,20 @@ A definition is provided for an HttpErr, which is an error with a stack trace an
 ## Multiplexer
 
 Sometimes multiple db or external calls need to be done in parallel, and the higher level code only cares about if an error is returned or not. erru provides a multiplexing utility that runs several func in separate goroutines, waits for them to end, collects the first error and returns it to the caller.
+
+```go
+  func loadData() error {
+    multiplexer := erru.NewMultiplexer()
+    multiplexer.Add(func (errChan chan error) {
+      errChan <- db.Query()
+    })
+    // etc
+    
+    // splits each func out into a seperate goroutine and
+    // blocks until they all complete. the first non-nil error
+    // is returned, or nil if all funcs completed successfully
+    return multiplexer.Go()
+  }
+```
+
+## Dependency Injection
