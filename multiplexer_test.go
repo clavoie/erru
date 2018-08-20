@@ -8,9 +8,9 @@ import (
 )
 
 func TestMultiplexer(t *testing.T) {
-	t.Run("AddNilNoErr", func(t *testing.T) {
+	t.Run("AddNothingNoErr", func(t *testing.T) {
 		multiplexer := erru.NewMultiplexer()
-		multiplexer.Add(nil)
+		multiplexer.Add()
 		err := multiplexer.Go()
 
 		if err != nil {
