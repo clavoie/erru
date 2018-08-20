@@ -2,6 +2,11 @@
 
 Error utilities for Go.
 
+* [Stack Traces](#stack-traces)
+* [Http](#http)
+* [Multiplexer](#multiplexer)
+* [Dependency Injection](#dependency-injection)
+
 ## Stack Traces
 Stack traces can be added to an existing error by calling Wrap. A context message for the error along with the stack trace can be added by calling WrapF. New errors that contains a stack trace can be created by calling Errorf.
 
@@ -53,6 +58,18 @@ A definition is provided for an HttpErr, which is an error with a stack trace an
   badRequestErr := erru.NewHttpBadRequest("input %v is not valid", someValue)
   internalServerErr := erru.NewHttpInternalServerErr("cannot process request: %v", someValue)
   methodNotAllowedErr := erru.NewHttpError(http.StatusMethodNotAllowed, "http method PUT is not allowed")
+  
+  func onHttpErr(err error, w http.ResponseWriter, r *http.Request) {
+	logger := NewLogger(r)
+	logger.LogRequestErr(err)
+
+	httpErr, isHttpErr := err.(erru.HttpErr)
+	if isHttpErr {
+		w.WriteHeader(httpErr.StatusCode())
+	} else {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
 ```
 [All HTTP helper functions here](https://godoc.org/github.com/clavoie/erru#HttpErr)
 
@@ -70,7 +87,7 @@ Sometimes multiple db or external calls need to be done in parallel, and the hig
     multiplexer.Add(func () error {
       return db.Query(&data1)
     }, func () error {
-      return db.Quer(&data2)
+      return db.Query(&data2)
     })
     // etc
     
@@ -83,7 +100,7 @@ Sometimes multiple db or external calls need to be done in parallel, and the hig
 
 ## Dependency Injection
 
-A wrapper is provided around all top level functions in the erru package. They can be injected the into your code instead of calling the package functions directly if you so choose. erru provides a function to hook into the [di dependency injection system](https://github.com/clavoie/di), but the constructors for all wrappers are open in case you would like to use another:
+An interface is provided to wrap all top level package functions. This interface can be injected the into your code instead of calling the package functions directly. A function to hook these dependencies into the [di dependency injection system](https://github.com/clavoie/di) is provided, but the constructors for all wrappers are open in case you would like to use another:
 
 ```go
   resolver, err := di.NewResolver(errHandler, erru.NewDiDefs())
@@ -96,5 +113,4 @@ A wrapper is provided around all top level functions in the erru package. They c
   
   err = resolver.Invoke(InjectableFunc)
   // log err, etc...
-  
 ```
