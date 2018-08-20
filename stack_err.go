@@ -10,6 +10,7 @@ import (
 // to pull back when creating a new StackErr
 const StackErrSize = 10
 
+// StackErr represents an error that contains a stack trace.
 type StackErr interface {
 	error
 

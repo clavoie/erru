@@ -24,7 +24,7 @@ func ExampleMultiplexer() {
 	multiplexer := erru.NewMultiplexer()
 	multiplexer.Add(DbCall1, DbCall2)
 
-	// splits each call out into a seperate goroutine and
+	// splits each call out into a separate goroutine and
 	// blocks until they all complete
 	err := multiplexer.Go()
 	fmt.Println(err)
