@@ -1,6 +1,6 @@
 package erru
 
-import "github.com/clavoie/di"
+import "github.com/clavoie/di/v2"
 
 // NewDiDefs returns the dependency definitions for this package.
 //
